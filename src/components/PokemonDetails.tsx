@@ -6,6 +6,7 @@ import {
     Card,
     CardMedia,
     CardContent,
+    Button,
     CircularProgress,
 } from "@mui/material";
 import { getPokemonDetails } from "../services/api";
@@ -14,6 +15,7 @@ const PokemonDetails: React.FC = () => {
     const { name } = useParams<{ name: string }>();
     const [pokemon, setPokemon] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [caught, setCaught] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchPokemonDetails = async () => {
@@ -21,10 +23,34 @@ const PokemonDetails: React.FC = () => {
                 const details = await getPokemonDetails(name);
                 setPokemon(details);
                 setLoading(false);
+
+                // Check if the Pokémon is already caught
+                const caughtPokemons = JSON.parse(
+                    localStorage.getItem("caughtPokemons") || "[]"
+                );
+                setCaught(caughtPokemons.some((p: any) => p.name === name));
             }
         };
         fetchPokemonDetails();
     }, [name]);
+
+    const catchPokemon = () => {
+        if (pokemon && !caught) {
+            const caughtPokemons = JSON.parse(
+                localStorage.getItem("caughtPokemons") || "[]"
+            );
+            caughtPokemons.push({
+                name: pokemon.name,
+                sprite: pokemon.sprites.front_default,
+                types: pokemon.types.map((t: any) => t.type.name),
+            });
+            localStorage.setItem(
+                "caughtPokemons",
+                JSON.stringify(caughtPokemons)
+            );
+            setCaught(true);
+        }
+    };
 
     if (loading) {
         return <CircularProgress />;
@@ -55,6 +81,15 @@ const PokemonDetails: React.FC = () => {
                             .map((type: any) => type.type.name)
                             .join(", ")}
                     </Typography>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={catchPokemon}
+                        disabled={caught}
+                        style={{ marginTop: "1rem" }}
+                    >
+                        {caught ? "Caught!" : "Catch"}
+                    </Button>
                 </CardContent>
             </Card>
         </Container>
