@@ -24,7 +24,7 @@ const App: React.FC = () => {
             <Container style={{ marginTop: "2rem" }}>
                 <Routes>
                     <Route path="/" element={<PokemonList />} />
-                    <Route path="/pokemon/:id" element={<PokemonDetails />} />
+                    <Route path="/pokemon/:name" element={<PokemonDetails />} />
                     <Route path="/caught" element={<CaughtPokemonList />} />
                 </Routes>
             </Container>

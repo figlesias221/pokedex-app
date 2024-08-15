@@ -10,6 +10,7 @@ import {
     CircularProgress,
 } from "@mui/material";
 import usePokemon from "../hooks/usePokemon";
+import { Link } from "react-router-dom";
 
 const PokemonList: React.FC = () => {
     const { pokemon, searchTerm, setSearchTerm, loading } = usePokemon();
@@ -32,7 +33,7 @@ const PokemonList: React.FC = () => {
                 <Grid container spacing={2}>
                     {pokemon.map((p) => (
                         <Grid item xs={12} sm={6} md={4} lg={3} key={p.name}>
-                            <Card>
+                            <Card component={Link} to={`/pokemon/${p.name}`}>
                                 {p.sprite && (
                                     <CardMedia
                                         component="img"
