@@ -16,6 +16,7 @@ const PokemonDetails: React.FC = () => {
     const [pokemon, setPokemon] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [caught, setCaught] = useState<boolean>(false);
+    const [animating, setAnimating] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchPokemonDetails = async () => {
@@ -24,7 +25,6 @@ const PokemonDetails: React.FC = () => {
                 setPokemon(details);
                 setLoading(false);
 
-                // Check if the Pokémon is already caught
                 const caughtPokemons = JSON.parse(
                     localStorage.getItem("caughtPokemons") || "[]"
                 );
@@ -49,6 +49,11 @@ const PokemonDetails: React.FC = () => {
                 JSON.stringify(caughtPokemons)
             );
             setCaught(true);
+            setAnimating(true);
+
+            setTimeout(() => {
+                setAnimating(false);
+            }, 1500); // Animation duration
         }
     };
 
@@ -62,14 +67,21 @@ const PokemonDetails: React.FC = () => {
 
     return (
         <Container>
-            <Card>
-                <CardMedia
-                    component="img"
-                    alt={pokemon.name}
-                    image={pokemon.sprites.front_default}
-                    title={pokemon.name}
-                    style={{ maxWidth: 300, margin: "auto" }}
-                />
+            <Card style={{ textAlign: "center" }}>
+                <div style={{ position: "relative" }}>
+                    <CardMedia
+                        component="img"
+                        alt={pokemon.name}
+                        image={pokemon.sprites.front_default}
+                        title={pokemon.name}
+                        style={{
+                            maxWidth: 300,
+                            margin: "20px auto",
+                            transition: "transform 1.5s ease-in-out",
+                            transform: animating ? "rotate(360deg)" : "none", // Apply rotation when animating
+                        }}
+                    />
+                </div>
                 <CardContent>
                     <Typography variant="h4" gutterBottom>
                         {pokemon.name.charAt(0).toUpperCase() +

@@ -51,15 +51,40 @@ const PokemonList: React.FC = () => {
                                 <Card
                                     component={Link}
                                     to={`/pokemon/${p.name}`}
-                                    style={{ textDecoration: "none" }}
+                                    style={{
+                                        textDecoration: "none",
+                                        borderRadius: "15px",
+                                        boxShadow:
+                                            "0 4px 8px rgba(0, 0, 0, 0.1)",
+                                        overflow: "hidden",
+                                        transition: "transform 0.2s",
+                                    }}
+                                    onMouseEnter={(e) =>
+                                        (e.currentTarget.style.transform =
+                                            "scale(1.05)")
+                                    }
+                                    onMouseLeave={(e) =>
+                                        (e.currentTarget.style.transform =
+                                            "scale(1)")
+                                    }
                                 >
                                     <CardMedia
                                         component="img"
                                         alt={p.name}
                                         image={p.sprite}
                                         title={p.name}
+                                        style={{
+                                            width: "200px",
+                                            height: "200px",
+                                            borderRadius: "50%",
+                                            margin: "20px auto 0",
+                                            backgroundColor: "#f2f2f2",
+                                            display: "block",
+                                        }}
                                     />
-                                    <CardContent>
+                                    <CardContent
+                                        style={{ textAlign: "center" }}
+                                    >
                                         <Typography variant="h6" gutterBottom>
                                             {p.name.charAt(0).toUpperCase() +
                                                 p.name.slice(1)}
