@@ -15,16 +15,25 @@ const usePokemon = () => {
     const [totalPages, setTotalPages] = useState<number>(0);
     const pageSize = 20; // Number of Pokémon per page
 
+    // Fetching paginated data or search results
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const offset = (currentPage - 1) * pageSize;
-                const data = await getPokemonList(pageSize, offset);
+                let fetchedPokemonDetails: Pokemon[] = [];
 
-                const pokemonDetails = await Promise.all(
-                    data.results.map(
-                        async (p: { name: string; url: string }) => {
+                if (searchTerm) {
+                    // Fetch all Pokémon for searching
+                    const data = await getPokemonList(1000, 0);
+                    const filtered = data.results.filter(
+                        (p: { name: string }) =>
+                            p.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase())
+                    );
+
+                    fetchedPokemonDetails = await Promise.all(
+                        filtered.map(async (p: { name: string }) => {
                             const details = await getPokemonDetails(p.name);
                             return {
                                 name: p.name,
@@ -34,12 +43,34 @@ const usePokemon = () => {
                                         (t: any) => t.type.name
                                     ) ?? [],
                             };
-                        }
-                    )
-                );
+                        })
+                    );
 
-                setPokemon(pokemonDetails);
-                setTotalPages(Math.ceil(data.count / pageSize)); // Set total pages based on total count
+                    setTotalPages(1); // Single page for search results
+                    setCurrentPage(1); // Reset to page 1 for search results
+                } else {
+                    // Paginated fetch when no search term is provided
+                    const offset = (currentPage - 1) * pageSize;
+                    const data = await getPokemonList(pageSize, offset);
+
+                    fetchedPokemonDetails = await Promise.all(
+                        data.results.map(async (p: { name: string }) => {
+                            const details = await getPokemonDetails(p.name);
+                            return {
+                                name: p.name,
+                                sprite: details?.sprites?.front_default ?? "",
+                                types:
+                                    details?.types.map(
+                                        (t: any) => t.type.name
+                                    ) ?? [],
+                            };
+                        })
+                    );
+
+                    setTotalPages(Math.ceil(data.count / pageSize)); // Calculate total pages based on API count
+                }
+
+                setPokemon(fetchedPokemonDetails);
             } catch (error) {
                 console.error("Error fetching Pokémon data:", error);
             } finally {
@@ -48,14 +79,10 @@ const usePokemon = () => {
         };
 
         fetchData();
-    }, [currentPage]);
-
-    const filteredPokemon = pokemon.filter((p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    }, [searchTerm, currentPage]);
 
     return {
-        pokemon: filteredPokemon,
+        pokemon,
         searchTerm,
         setSearchTerm,
         loading,
